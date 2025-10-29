@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Guardian Extension Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.warning { background: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        button:hover { background: #0056b3; }
+        .code {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎙️ Voice Guardian Extension Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Extension Installation</h2>
+        <div id="extension-status" class="status warning">Checking extension...</div>
+        <p>Make sure you've loaded the extension in Chrome:</p>
+        <ol>
+            <li>Go to <code>chrome://extensions/</code></li>
+            <li>Enable "Developer mode"</li>
+            <li>Click "Load unpacked"</li>
+            <li>Select the <code>extension</code> folder</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Backend Connection</h2>
+        <div id="backend-status" class="status warning">Checking backend...</div>
+        <button onclick="testBackend()">Test Backend Connection</button>
+        <p>Make sure your FastAPI backend is running on <code>http://localhost:8000</code></p>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Voice Recognition</h2>
+        <div id="voice-status" class="status warning">Voice recognition not tested</div>
+        <button onclick="testVoice()">Test Voice Recognition</button>
+        <p>This will test if your browser supports speech recognition.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Extension Popup</h2>
+        <div id="popup-status" class="status warning">Popup not tested</div>
+        <p>Click the Voice Guardian icon in your browser toolbar to test the popup.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Keyboard Shortcut</h2>
+        <div id="shortcut-status" class="status warning">Shortcut not tested</div>
+        <p>Press <kbd>Ctrl+Shift+V</kbd> (or <kbd>Cmd+Shift+V</kbd> on Mac) to test the keyboard shortcut.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>6. Test Results</h2>
+        <div id="test-results">
+            <p>Run the tests above to see results here.</p>
+        </div>
+    </div>
+
+    <script>
+        // Test extension installation
+        function checkExtension() {
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+                document.getElementById('extension-status').textContent = '✅ Extension is installed and running';
+                document.getElementById('extension-status').className = 'status success';
+                return true;
+            } else {
+                document.getElementById('extension-status').textContent = '❌ Extension not detected';
+                document.getElementById('extension-status').className = 'status error';
+                return false;
+            }
+        }
+
+        // Test backend connection
+        async function testBackend() {
+            const statusEl = document.getElementById('backend-status');
+            statusEl.textContent = 'Testing backend connection...';
+            statusEl.className = 'status warning';
+
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.textContent = '✅ Backend is running and accessible';
+                    statusEl.className = 'status success';
+                } else {
+                    throw new Error('Backend returned error');
+                }
+            } catch (error) {
+                statusEl.textContent = '❌ Backend connection failed: ' + error.message;
+                statusEl.className = 'status error';
+            }
+        }
+
+        // Test voice recognition
+        function testVoice() {
+            const statusEl = document.getElementById('voice-status');
+            
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                statusEl.textContent = '✅ Voice recognition is supported';
+                statusEl.className = 'status success';
+            } else {
+                statusEl.textContent = '❌ Voice recognition not supported in this browser';
+                statusEl.className = 'status error';
+            }
+        }
+
+        // Update test results
+        function updateTestResults() {
+            const results = [];
+            const statuses = document.querySelectorAll('.status');
+            
+            statuses.forEach(status => {
+                if (status.className.includes('success')) {
+                    results.push('✅ ' + status.textContent);
+                } else if (status.className.includes('error')) {
+                    results.push('❌ ' + status.textContent);
+                } else {
+                    results.push('⏳ ' + status.textContent);
+                }
+            });
+
+            document.getElementById('test-results').innerHTML = results.map(r => '<p>' + r + '</p>').join('');
+        }
+
+        // Listen for keyboard shortcut
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'V') {
+                document.getElementById('shortcut-status').textContent = '✅ Keyboard shortcut detected!';
+                document.getElementById('shortcut-status').className = 'status success';
+                updateTestResults();
+            }
+        });
+
+        // Initialize tests
+        document.addEventListener('DOMContentLoaded', function() {
+            checkExtension();
+            testVoice();
+            updateTestResults();
+            
+            // Update results every 2 seconds
+            setInterval(updateTestResults, 2000);
+        });
+    </script>
+</body>
+</html>
+
+

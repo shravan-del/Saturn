@@ -1,0 +1,58 @@
+/**
+ * Content Script Styles
+ * Styles for injected UI elements
+ */
+
+/* Gmail toolbar button */
+.voice-guardian-inject-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 1.5rem !important;
+  cursor: pointer !important;
+  margin-right: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+}
+
+.voice-guardian-inject-btn:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5) !important;
+}
+
+.voice-guardian-inject-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* Floating button for Calendar */
+.voice-guardian-floating-btn {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 60px !important;
+  height: 60px !important;
+  font-size: 2rem !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+.voice-guardian-floating-btn:hover {
+  transform: scale(1.1) rotate(5deg) !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+}
+
+.voice-guardian-floating-btn:active {
+  transform: scale(0.9) !important;
+}
+
+

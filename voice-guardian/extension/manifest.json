@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Voice Guardian",
+  "version": "1.0.0",
+  "description": "AI-powered voice assistant that executes work autonomously",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "identity"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://www.googleapis.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Voice Guardian - Press Ctrl+Shift+V"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "commands": {
+    "activate-voice": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+V",
+        "mac": "Command+Shift+V"
+      },
+      "description": "Activate voice command"
+    }
+  }
+}

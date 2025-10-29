@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Guardian - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎙️ Voice Guardian Settings</h1>
+      <p>Configure your voice assistant preferences</p>
+    </header>
+
+    <main>
+      <!-- Account Section -->
+      <section class="card">
+        <h2>Account</h2>
+        <div class="user-info">
+          <img id="user-avatar" src="" alt="User" class="avatar">
+          <div>
+            <p id="user-name" class="user-name">Loading...</p>
+            <p id="user-email" class="user-email">Loading...</p>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+      </section>
+
+      <!-- Voice Settings -->
+      <section class="card">
+        <h2>Voice Settings</h2>
+        
+        <div class="setting-item">
+          <label for="auto-start">
+            <span>Auto-start listening</span>
+            <small>Automatically start listening when opening popup</small>
+          </label>
+          <input type="checkbox" id="auto-start">
+        </div>
+
+        <div class="setting-item">
+          <label for="confirmation-mode">
+            <span>Confirmation Mode</span>
+            <small>How often to confirm before executing</small>
+          </label>
+          <select id="confirmation-mode">
+            <option value="smart">Smart (Guardian decides)</option>
+            <option value="always">Always confirm</option>
+            <option value="never">Auto-execute (risky)</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Integrations -->
+      <section class="card">
+        <h2>Integrations</h2>
+        
+        <div class="integration-item">
+          <div class="integration-info">
+            <img src="https://www.google.com/favicon.ico" alt="Google" class="integration-icon">
+            <div>
+              <strong>Google Calendar</strong>
+              <p>Create and manage calendar events</p>
+            </div>
+          </div>
+          <span id="calendar-status" class="status-badge">Connected</span>
+        </div>
+
+        <div class="integration-item">
+          <div class="integration-info">
+            <img src="https://www.google.com/favicon.ico" alt="Google" class="integration-icon">
+            <div>
+              <strong>Gmail</strong>
+              <p>Send and manage emails</p>
+            </div>
+          </div>
+          <span id="gmail-status" class="status-badge status-disconnected">Not Connected</span>
+        </div>
+
+        <div class="integration-item">
+          <div class="integration-info">
+            <img src="https://www.google.com/favicon.ico" alt="Google" class="integration-icon">
+            <div>
+              <strong>Google Docs</strong>
+              <p>Create and edit documents</p>
+            </div>
+          </div>
+          <span id="docs-status" class="status-badge status-disconnected">Coming Soon</span>
+        </div>
+      </section>
+
+      <!-- Keyboard Shortcuts -->
+      <section class="card">
+        <h2>Keyboard Shortcuts</h2>
+        
+        <div class="shortcut-item">
+          <span>Activate Voice Command</span>
+          <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd>
+        </div>
+
+        <p class="help-text">
+          To change shortcuts, go to chrome://extensions/shortcuts
+        </p>
+      </section>
+
+      <!-- Privacy & Data -->
+      <section class="card">
+        <h2>Privacy & Data</h2>
+        
+        <div class="setting-item">
+          <label for="save-history">
+            <span>Save command history</span>
+            <small>Keep a log of your voice commands</small>
+          </label>
+          <input type="checkbox" id="save-history" checked>
+        </div>
+
+        <button id="clear-data-btn" class="btn btn-danger">Clear All Data</button>
+        <p class="help-text">This will delete all stored actions and settings</p>
+      </section>
+
+      <!-- About -->
+      <section class="card">
+        <h2>About</h2>
+        <p><strong>Version:</strong> 1.0.0</p>
+        <p><strong>Created by:</strong> Voice Guardian Team</p>
+        <div class="links">
+          <a href="http://localhost:5173" target="_blank">Dashboard</a>
+          <a href="#" id="support-link">Support</a>
+          <a href="#" id="privacy-link">Privacy Policy</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../utils/storage.js"></script>
+  <script src="../utils/auth.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
+
+

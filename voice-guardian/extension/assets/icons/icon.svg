@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#D946EF"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="56" fill="url(#gradient1)"/>
+  
+  <!-- Microphone icon -->
+  <path d="M64 32a16 16 0 0116 16v16a16 16 0 11-32 0V48a16 16 0 0116-16z" fill="white"/>
+  <path d="M48 64a16 16 0 0032 0M64 80v16M56 96h16" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Shield overlay -->
+  <path d="M64 24l20 4v20c0 12-8 20-20 24-12-4-20-12-20-24V28l20-4z" fill="rgba(255,255,255,0.2)"/>
+</svg>

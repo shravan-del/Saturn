@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Guardian</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="screen">
+    <div class="login-container">
+      <!-- Logo -->
+      <div class="logo-section">
+        <div class="logo-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" fill="url(#gradient1)"/>
+            <path d="M24 14v20M20 24h8" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="gradient1" x1="4" y1="4" x2="44" y2="44">
+                <stop offset="0%" stop-color="#6366F1"/>
+                <stop offset="100%" stop-color="#8B5CF6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <h1 class="logo-text">Voice Guardian</h1>
+        <p class="logo-tagline">Your AI-powered work assistant</p>
+      </div>
+
+      <!-- Feature Highlights -->
+      <div class="features-preview">
+        <div class="feature-item">
+          <span class="feature-icon">🎙️</span>
+          <span>Voice Commands</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🛡️</span>
+          <span>Smart Protection</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">⚡</span>
+          <span>Instant Actions</span>
+        </div>
+      </div>
+
+      <!-- Sign In Button -->
+      <button id="google-signin" class="btn-primary btn-large">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M19.6 10.23c0-.82-.1-1.42-.25-2.05H10v3.72h5.5c-.15.96-.74 2.31-2.04 3.22v2.45h3.16c1.89-1.73 2.98-4.3 2.98-7.34z"/>
+          <path d="M10 20c2.7 0 4.96-.89 6.62-2.42l-3.16-2.45c-.86.58-1.97.92-3.46.92-2.65 0-4.92-1.8-5.73-4.22H1.05v2.52C2.7 17.03 6.09 20 10 20z"/>
+          <path d="M4.27 11.83c-.25-.76-.25-1.58 0-2.34V6.97H1.05c-.82 1.54-.82 3.52 0 5.06l3.22-2.2z"/>
+          <path d="M10 3.88c1.45 0 2.76.5 3.78 1.48l2.76-2.76C14.96.95 12.7 0 10 0 6.09 0 2.7 2.97 1.05 6.97l3.22 2.52c.8-2.42 3.08-4.22 5.73-4.22z"/>
+        </svg>
+        Sign in as Shravan
+      </button>
+
+      <p class="privacy-note">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+          <path d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5L6 0Z"/>
+        </svg>
+        Your data is encrypted and secure
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Interface -->
+  <div id="main-screen" class="screen" style="display: none;">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="user-section">
+          <img id="user-avatar" class="user-avatar" src="" alt="">
+          <div class="user-info">
+            <span id="user-name" class="user-name">Loading...</span>
+            <span class="user-status">
+              <span class="status-dot"></span>
+              Connected
+            </span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="calendar-access-btn" class="icon-button" title="Request Calendar Access">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M12 2h2v2h-2V2zM2 2h2v2H2V2zM12 12h2v2h-2v-2zM2 12h2v2H2v-2z"/>
+            </svg>
+          </button>
+          <button id="settings-btn" class="icon-button">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Voice Command Center -->
+    <div class="voice-section">
+      <div class="voice-prompt">
+        <h2 id="prompt-text">Press to speak</h2>
+        <p id="prompt-hint">or press <kbd>Ctrl+Shift+V</kbd></p>
+      </div>
+
+      <!-- Voice Button -->
+      <button id="voice-button" class="voice-button">
+        <div class="voice-button-inner">
+          <svg id="mic-icon" width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+            <path d="M16 2a6 6 0 016 6v8a6 6 0 11-12 0V8a6 6 0 016-6z"/>
+            <path d="M8 16a8 8 0 0016 0M16 24v6M12 30h8"/>
+          </svg>
+          <div class="voice-ripple"></div>
+          <div class="voice-ripple"></div>
+          <div class="voice-ripple"></div>
+        </div>
+      </button>
+
+      <!-- Waveform Visualization -->
+      <div id="waveform" class="waveform" style="display: none;">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+    </div>
+
+    <!-- Transcript Display -->
+    <div id="transcript-card" class="card" style="display: none;">
+      <div class="card-header">
+        <h3>You said:</h3>
+      </div>
+      <div class="card-body">
+        <p id="transcript-text" class="transcript-text"></p>
+        <button id="process-button" class="btn-primary btn-medium">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 2l6 6-6 6M2 8h12"/>
+          </svg>
+          Process Command
+        </button>
+      </div>
+    </div>
+
+    <!-- Guardian Preview -->
+    <div id="guardian-card" class="card" style="display: none;">
+      <div class="card-header">
+        <div class="guardian-badge">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 1l6 2v5c0 3.5-2.5 6.5-6 7-3.5-.5-6-3.5-6-7V3l6-2z"/>
+          </svg>
+          Guardian Review
+        </div>
+        <span id="confidence-badge" class="confidence-badge">95% Confident</span>
+      </div>
+      <div class="card-body">
+        <div class="preview-section">
+          <label>Action Preview:</label>
+          <p id="action-preview" class="preview-text"></p>
+        </div>
+
+        <div id="warnings-section" class="warnings-section" style="display: none;">
+          <div class="warning-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 1l7 14H1L8 1zM8 11h1v1H7v-1h1zm0-6h1v5H7V5h1z"/>
+            </svg>
+            <span id="warning-text"></span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="cancel-button" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M12 4L4 12M4 4l8 8"/>
+            </svg>
+            Cancel
+          </button>
+          <button id="confirm-button" class="btn-success">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M13 4L6 11l-3-3"/>
+            </svg>
+            Confirm & Execute
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div id="success-card" class="card card-success" style="display: none;">
+      <div class="card-body">
+        <div class="success-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" fill="#10B981" opacity="0.2"/>
+            <path d="M34 18L20 32l-6-6" stroke="#10B981" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3 id="success-title">Event Created!</h3>
+        <p id="success-message">Your calendar event has been created successfully.</p>
+        <a id="calendar-link" class="link-button" href="#" target="_blank">
+          Open in Google Calendar
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M12 2h2v2h-2V2zM2 2h2v2H2V2zM12 12h2v2h-2v-2zM2 12h2v2H2v-2z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Actions -->
+    <div class="recent-section">
+      <h3 class="section-title">Recent Actions</h3>
+      <div id="actions-list" class="actions-list">
+        <div class="empty-state">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none" opacity="0.3">
+            <circle cx="32" cy="32" r="24" stroke="currentColor" stroke-width="2"/>
+            <path d="M32 20v24M20 32h24" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <p>No actions yet</p>
+          <span>Try saying "Schedule a meeting tomorrow at 2pm"</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="tips-card">
+      <div class="tips-header">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6l2-6z"/>
+        </svg>
+        <span>Pro Tips</span>
+      </div>
+      <ul class="tips-list">
+        <li>"Schedule team standup tomorrow at 9am"</li>
+        <li>"Create a 30-minute code review Friday afternoon"</li>
+        <li>"Book a meeting next Tuesday at 2pm"</li>
+        <li>"Schedule CS3214 study session this weekend"</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring"></div>
+    </div>
+    <p id="loading-text">Processing...</p>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="../config.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="../utils/auth.js"></script>
+  <script src="../utils/api.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

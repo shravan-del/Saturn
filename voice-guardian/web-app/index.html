@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Guardian - AI Voice Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🎤</div>
+                    <div class="logo-text">
+                        <h1>Voice Guardian</h1>
+                        <p>Your AI voice assistant</p>
+                    </div>
+                </div>
+                <div class="user-info" id="user-info" style="display: none;">
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <div class="user-details">
+                        <div class="user-name" id="user-name"></div>
+                        <div class="user-email" id="user-email"></div>
+                    </div>
+                    <button class="logout-btn" id="logout-btn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Login Screen -->
+            <div class="login-screen" id="login-screen">
+                <div class="login-container">
+                    <div class="login-header">
+                        <h2>Welcome to Voice Guardian</h2>
+                        <p>Sign in to start using voice commands</p>
+                    </div>
+                    <button class="google-signin-btn" id="google-signin-btn">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-logo">
+                        Sign in with Google
+                    </button>
+                    <div class="login-footer">
+                        <p>Your data is encrypted and secure</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main App Screen -->
+            <div class="main-screen" id="main-screen" style="display: none;">
+                <!-- Voice Command Section -->
+                <section class="voice-section">
+                    <div class="voice-container">
+                        <div class="voice-status" id="voice-status">
+                            <div class="status-icon">🎤</div>
+                            <div class="status-text">Click to start voice command</div>
+                        </div>
+                        <button class="voice-button" id="voice-button">
+                            <div class="voice-icon">🎤</div>
+                        </button>
+                        <div class="voice-instructions">
+                            <p>Try saying:</p>
+                            <ul>
+                                <li>"Schedule a meeting with John tomorrow at 2 PM"</li>
+                                <li>"Create a calendar event for team standup"</li>
+                                <li>"Send an email to the team about the project"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Actions Section -->
+                <section class="actions-section">
+                    <div class="actions-header">
+                        <h3>Recent Actions</h3>
+                        <button class="refresh-btn" id="refresh-btn">Refresh</button>
+                    </div>
+                    <div class="actions-list" id="actions-list">
+                        <div class="loading">Loading actions...</div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" data-action="schedule">
+                            <div class="action-icon">📅</div>
+                            <div class="action-text">Schedule Meeting</div>
+                        </button>
+                        <button class="quick-action-btn" data-action="email">
+                            <div class="action-icon">📧</div>
+                            <div class="action-text">Send Email</div>
+                        </button>
+                        <button class="quick-action-btn" data-action="reminder">
+                            <div class="action-icon">⏰</div>
+                            <div class="action-text">Set Reminder</div>
+                        </button>
+                        <button class="quick-action-btn" data-action="note">
+                            <div class="action-icon">📝</div>
+                            <div class="action-text">Create Note</div>
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>&copy; 2024 Voice Guardian. Powered by AI.</p>
+                <div class="footer-links">
+                    <a href="#" id="settings-link">Settings</a>
+                    <a href="#" id="help-link">Help</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing...</div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="message-toast" id="message-toast" style="display: none;">
+        <div class="message-content">
+            <div class="message-icon" id="message-icon"></div>
+            <div class="message-text" id="message-text"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+
+
