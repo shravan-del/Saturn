@@ -141,23 +141,24 @@ async function checkAuth() {
 }
 
 /**
- * Show login screen
+ * Initialize Google Services
  */
-function showLoginScreen() {
-  elements.loginScreen.style.display = 'block';
-  elements.mainScreen.style.display = 'none';
-  
-  // Initialize Google Sign-In
-  setTimeout(() => {
-    if (window.google) {
-      google.accounts.id.initialize({
-        client_id: window.CONFIG?.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
-        callback: handleCredentialResponse,
-        auto_select: false,
-        cancel_on_tap_outside: false
-      });
+function initializeGoogleServices() {
+  const initGoogle = () => {
+    if (window.google && window.google.accounts) {
+      console.log('✅ Google Identity Services loaded');
       
-      // Also initialize OAuth2 for calendar access
+      // Initialize Google Sign-In
+      if (window.google.accounts.id) {
+        google.accounts.id.initialize({
+          client_id: window.CONFIG?.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: false
+        });
+      }
+      
+      // Initialize OAuth2 for calendar access
       if (window.google.accounts.oauth2) {
         google.accounts.oauth2.initTokenClient({
           client_id: window.CONFIG?.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
@@ -170,8 +171,47 @@ function showLoginScreen() {
           }
         });
       }
+      
+      return true;
     }
-  }, 500);
+    return false;
+  };
+  
+  // Try to initialize immediately
+  if (initGoogle()) {
+    return;
+  }
+  
+  // If not ready, wait for it to load
+  let attempts = 0;
+  const maxAttempts = 20; // 10 seconds max
+  
+  const checkGoogle = () => {
+    attempts++;
+    if (initGoogle()) {
+      return;
+    }
+    
+    if (attempts < maxAttempts) {
+      setTimeout(checkGoogle, 500);
+    } else {
+      console.error('❌ Google Identity Services failed to load after 10 seconds');
+      showToast('error', 'Google Services Error', 'Failed to load Google Identity Services. Please refresh the extension.');
+    }
+  };
+  
+  checkGoogle();
+}
+
+/**
+ * Show login screen
+ */
+function showLoginScreen() {
+  elements.loginScreen.style.display = 'block';
+  elements.mainScreen.style.display = 'none';
+  
+  // Initialize Google Sign-In
+  initializeGoogleServices();
 }
 
 /**
@@ -693,8 +733,14 @@ async function requestGoogleToken() {
   return new Promise((resolve, reject) => {
     console.log('Requesting Google token...');
     
-    // Use Google Identity Services to get token
-    if (window.google && window.google.accounts.oauth2) {
+    // Check if Google services are loaded
+    if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
+      console.error('Google Identity Services not loaded');
+      reject(new Error('Google Identity Services not loaded. Please refresh the extension.'));
+      return;
+    }
+    
+    try {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: window.CONFIG?.GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
         scope: 'https://www.googleapis.com/auth/calendar',
@@ -717,9 +763,9 @@ async function requestGoogleToken() {
       
       console.log('Requesting access token...');
       client.requestAccessToken();
-    } else {
-      console.error('Google Identity Services not loaded');
-      reject(new Error('Google Identity Services not loaded'));
+    } catch (error) {
+      console.error('Error initializing OAuth client:', error);
+      reject(new Error('Failed to initialize OAuth client'));
     }
   });
 }
