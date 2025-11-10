@@ -1,0 +1,775 @@
+# 👨‍💻 Engineer 2 - Intelligence & Settings
+
+## **YOUR ROLE**
+
+You are **Engineer 2** - NLP Logic & Settings Management
+- **You own**: Intent parsing, Guardian logic, settings UI, error handling
+- **You work with**: Engineer 1 on shared components and voice integration
+- **Your goal**: Build the intelligence behind voice commands and settings interface
+
+---
+
+## **📁 YOUR FILES (You Own These)**
+
+### **Frontend Files:**
+```
+extension/
+├── options/
+│   ├── options.html        ⭐ YOU OWN - Settings page UI
+│   ├── options.css         ⭐ YOU OWN - Settings styling
+│   └── options.js          ⭐ YOU OWN - Settings logic
+│
+└── content-scripts/
+    └── gmail-injector.js   ⭐ YOU OWN - Gmail integration
+```
+
+### **Backend Files:**
+```
+extension/
+├── utils/
+│   ├── nlp.js              ⭐ YOU OWN - Intent parsing
+│   ├── guardian.js         ⭐ YOU OWN - 7-layer validation
+│   ├── api.js              ⭐ YOU OWN - API wrapper
+│   ├── storage.js          ⭐ YOU OWN - Chrome Storage
+│   ├── error-handler.js    ⭐ YOU OWN - Error handling
+│   ├── auth.js             ⭐ YOU OWN - Authentication
+│   ├── security.js         ⭐ YOU OWN - Input validation
+│   └── performance.js      ⭐ YOU OWN - Caching & monitoring
+│
+├── config/
+│   ├── constants.js        ⭐ YOU OWN - App constants
+│   └── api-config.js       ⭐ YOU OWN - API endpoints
+│
+└── background/
+    └── service-worker.js   ⭐ YOU OWN - Background tasks
+```
+
+### **Shared Responsibilities:**
+```
+extension/utils/
+├── voice.js                🤝 Engineer 1 owns, you use
+├── calendar.js             🤝 Engineer 1 owns, you use
+└── speech.js               🤝 Engineer 1 owns, you use
+```
+
+---
+
+## **🎯 YOUR TASKS (Week 1-2)**
+
+### **Week 1: Core Intelligence (Days 1-5)**
+
+#### **Days 1-2: Intent Parsing + NLP Logic**
+**Goal**: Parse voice commands into structured intents
+
+**Backend Tasks:**
+1. **NLP Service** (`utils/nlp.js`)
+   ```javascript
+   class NLPService {
+     async parse(transcript) {
+       // Call backend: POST /voice/command
+       // Extract intent type, confidence, entities
+       // Return structured intent
+     }
+     
+     extractEntities(transcript) {
+       // Extract: title, when, duration, location
+       // Use regex + date parsing
+     }
+     
+     normalizeDateTime(dateString) {
+       // Convert "tomorrow 2pm" to ISO format
+       // Handle relative dates (today, tomorrow, next week)
+     }
+     
+     validateIntent(intent) {
+       // Check required fields
+       // Validate confidence threshold
+     }
+   }
+   ```
+
+2. **Entity Extraction** (`utils/nlp.js`)
+   ```javascript
+   class EntityExtractor {
+     static extractTitle(text) {
+       // Extract event title from command
+     }
+     
+     static extractDateTime(text) {
+       // Extract date and time
+       // Handle formats: "tomorrow 2pm", "Friday at 3"
+     }
+     
+     static extractDuration(text) {
+       // Extract duration: "30 minutes", "1 hour"
+       // Default to settings value
+     }
+     
+     static extractLocation(text) {
+       // Extract location if mentioned
+     }
+   }
+   ```
+
+**Frontend Tasks:**
+3. **Intent Display** (`popup.js` - coordinate with Engineer 1)
+   - Work with Engineer 1 to display parsed intent
+   - Provide data structure for display
+
+**Files to Create:**
+- `utils/nlp.js` - Intent parsing service
+- Create test cases in `test/nlp.test.js`
+
+---
+
+#### **Days 3-4: Guardian Validation System**
+**Goal**: Build 7-layer validation to prevent bad calendar events
+
+**Backend Tasks:**
+1. **Guardian Core** (`utils/guardian.js`)
+   ```javascript
+   class Guardian {
+     constructor() {
+       this.layers = [
+         new SanityCheckLayer(),
+         new ConflictDetectionLayer(),
+         new PatternAnalysisLayer(),
+         new RiskScoringLayer(),
+         new ModeDecisionLayer(),
+         new WarningGenerationLayer(),
+         new RecommendationLayer()
+       ];
+     }
+     
+     async validate(intent) {
+       let context = { intent, calendar_events: [] };
+       
+       // Run through all 7 layers
+       for (const layer of this.layers) {
+         context = await layer.process(context);
+       }
+       
+       return {
+         mode: context.mode,           // auto/confirm/block
+         risk_score: context.risk_score, // 0.0 - 1.0
+         warnings: context.warnings,     // User warnings
+         blockers: context.blockers,     // Blocking issues
+         preview: context.preview        // Action preview text
+       };
+     }
+   }
+   ```
+
+2. **Validation Layers** (`utils/guardian.js`)
+   ```javascript
+   // Layer 1: Sanity Checks
+   class SanityCheckLayer {
+     async process(context) {
+       // Check required fields
+       // Validate date/time format
+       // Check duration limits (1min - 8hrs)
+       return context;
+     }
+   }
+   
+   // Layer 2: Conflict Detection
+   class ConflictDetectionLayer {
+     async process(context) {
+       // Fetch calendar events
+       // Check for overlaps
+       // Add conflicts to context
+       return context;
+     }
+   }
+   
+   // Layer 3: Pattern Analysis
+   class PatternAnalysisLayer {
+     async process(context) {
+       // Detect unusual patterns
+       // Flag very short events (<15min)
+       // Flag very long events (>4hrs)
+       return context;
+     }
+   }
+   
+   // Layer 4: Risk Scoring
+   class RiskScoringLayer {
+     async process(context) {
+       // Calculate risk score
+       // Weight: confidence, conflicts, patterns
+       context.risk_score = this.calculate(context);
+       return context;
+     }
+     
+     calculate(context) {
+       let risk = 0;
+       
+       // Low confidence increases risk
+       if (context.intent.confidence < 0.7) risk += 0.2;
+       
+       // Conflicts increase risk
+       risk += context.conflicts.length * 0.15;
+       
+       // Unusual patterns increase risk
+       if (context.unusual_pattern) risk += 0.1;
+       
+       return Math.min(risk, 1.0);
+     }
+   }
+   
+   // Layer 5: Mode Decision
+   class ModeDecisionLayer {
+     async process(context) {
+       const score = context.risk_score;
+       
+       if (score < 0.19) {
+         context.mode = 'auto';  // Execute immediately
+       } else if (score < 0.49) {
+         context.mode = 'confirm';  // Ask user
+       } else {
+         context.mode = 'block';  // Don't allow
+       }
+       
+       return context;
+     }
+   }
+   
+   // Layer 6: Warning Generation
+   class WarningGenerationLayer {
+     async process(context) {
+       context.warnings = [];
+       
+       if (context.conflicts.length > 0) {
+         context.warnings.push('This event overlaps with existing events');
+       }
+       
+       if (context.intent.confidence < 0.7) {
+         context.warnings.push('I\'m not fully confident about this command');
+       }
+       
+       return context;
+     }
+   }
+   
+   // Layer 7: Recommendations
+   class RecommendationLayer {
+     async process(context) {
+       // Generate helpful preview text
+       const { title, when, duration } = context.intent.entities;
+       context.preview = `Creating "${title}" on ${when} for ${duration} minutes`;
+       
+       return context;
+     }
+   }
+   ```
+
+**Files to Create:**
+- `utils/guardian.js` - Guardian validation system
+- Create test cases in `test/guardian.test.js`
+
+---
+
+#### **Day 5: Settings Page + Storage**
+**Goal**: Users can configure extension behavior
+
+**Frontend Tasks:**
+1. **Settings UI** (`options/options.html`)
+   ```html
+   <section class="settings-section">
+     <h2>Default Event Settings</h2>
+     
+     <label>
+       Default Duration:
+       <select id="default-duration">
+         <option value="30">30 minutes</option>
+         <option value="60" selected>1 hour</option>
+         <option value="90">1.5 hours</option>
+       </select>
+     </label>
+     
+     <label>
+       Default Calendar:
+       <select id="default-calendar">
+         <!-- Populated dynamically -->
+       </select>
+     </label>
+   </section>
+   
+   <section class="settings-section">
+     <h2>Guardian Mode</h2>
+     
+     <label>
+       <input type="radio" name="guardian-mode" value="auto">
+       Auto - Execute low-risk commands immediately
+     </label>
+     
+     <label>
+       <input type="radio" name="guardian-mode" value="confirm" checked>
+       Confirm - Always ask before creating events
+     </label>
+     
+     <label>
+       <input type="radio" name="guardian-mode" value="cautious">
+       Cautious - Block medium+ risk commands
+     </label>
+   </section>
+   
+   <section class="settings-section">
+     <h2>Account</h2>
+     <button id="disconnect-btn" class="danger">
+       Disconnect Google Account
+     </button>
+     
+     <button id="clear-history-btn" class="danger">
+       Clear Action History
+     </button>
+   </section>
+   ```
+
+2. **Settings Logic** (`options/options.js`)
+   ```javascript
+   class SettingsManager {
+     async loadSettings() {
+       const settings = await Storage.get('settings');
+       this.populateForm(settings);
+     }
+     
+     async saveSettings() {
+       const settings = this.getFormData();
+       await Storage.set('settings', settings);
+       this.showSaveConfirmation();
+     }
+     
+     async disconnectAccount() {
+       await Storage.clear();
+       window.location.href = 'popup.html';
+     }
+   }
+   ```
+
+**Backend Tasks:**
+3. **Storage Manager** (`utils/storage.js`)
+   ```javascript
+   class StorageManager {
+     // Use Chrome Storage API (synced across devices)
+     static async get(key) {
+       return new Promise((resolve) => {
+         chrome.storage.sync.get([key], (result) => {
+           resolve(result[key]);
+         });
+       });
+     }
+     
+     static async set(key, value) {
+       return new Promise((resolve) => {
+         chrome.storage.sync.set({ [key]: value }, resolve);
+       });
+     }
+     
+     static async remove(key) {
+       return new Promise((resolve) => {
+         chrome.storage.sync.remove([key], resolve);
+       });
+     }
+     
+     static async clear() {
+       return new Promise((resolve) => {
+         chrome.storage.sync.clear(resolve);
+       });
+     }
+   }
+   ```
+
+**Files to Create/Modify:**
+- `options/options.html` - Settings page UI
+- `options/options.css` - Settings styling
+- `options/options.js` - Settings logic
+- `utils/storage.js` - Chrome Storage wrapper
+
+---
+
+### **Week 2: Advanced Features (Days 6-10)**
+
+#### **Days 6-7: Error Handling + API Enhancement**
+**Goal**: Comprehensive error handling and robust API calls
+
+**Backend Tasks:**
+1. **Error Handler** (`utils/error-handler.js`)
+   ```javascript
+   class ErrorHandler {
+     static handle(error, context = {}) {
+       const errorType = this.categorize(error);
+       const userMessage = this.getUserMessage(errorType, error);
+       
+       // Log for debugging
+       console.error('[Error]', errorType, error, context);
+       
+       return {
+         type: errorType,
+         message: userMessage,
+         technical: error.message,
+         canRetry: this.canRetry(errorType)
+       };
+     }
+     
+     static categorize(error) {
+       if (error.message.includes('network')) return 'NETWORK_ERROR';
+       if (error.status === 401) return 'AUTH_ERROR';
+       if (error.status === 429) return 'RATE_LIMIT';
+       if (error.status >= 500) return 'SERVER_ERROR';
+       return 'UNKNOWN_ERROR';
+     }
+     
+     static getUserMessage(errorType, error) {
+       const messages = {
+         NETWORK_ERROR: 'No internet connection. Please check your network.',
+         AUTH_ERROR: 'Session expired. Please sign in again.',
+         RATE_LIMIT: 'Too many requests. Please wait a moment.',
+         SERVER_ERROR: 'Our servers are having issues. Please try again.',
+         UNKNOWN_ERROR: 'Something went wrong. Please try again.'
+       };
+       
+       return messages[errorType] || messages.UNKNOWN_ERROR;
+     }
+     
+     static canRetry(errorType) {
+       return ['NETWORK_ERROR', 'SERVER_ERROR'].includes(errorType);
+     }
+   }
+   ```
+
+2. **API Enhancement** (`utils/api.js`)
+   ```javascript
+   const API = {
+     baseURL: 'http://localhost:8000',
+     
+     async request(endpoint, options = {}) {
+       const maxRetries = 3;
+       let lastError;
+       
+       for (let i = 0; i < maxRetries; i++) {
+         try {
+           const response = await this.makeRequest(endpoint, options);
+           return response;
+         } catch (error) {
+           lastError = error;
+           
+           // Don't retry auth errors
+           if (error.status === 401) {
+             await this.refreshToken();
+             // Retry with new token
+             continue;
+           }
+           
+           // Exponential backoff for retries
+           if (i < maxRetries - 1) {
+             await this.sleep(Math.pow(2, i) * 1000);
+           }
+         }
+       }
+       
+       throw lastError;
+     },
+     
+     async makeRequest(endpoint, options) {
+       const token = await Storage.get('access_token');
+       
+       const response = await fetch(`${this.baseURL}${endpoint}`, {
+         ...options,
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': `Bearer ${token}`,
+           ...options.headers
+         },
+         timeout: 30000  // 30 second timeout
+       });
+       
+       if (!response.ok) {
+         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+       }
+       
+       return response.json();
+     },
+     
+     async refreshToken() {
+       // Token refresh logic
+     },
+     
+     sleep(ms) {
+       return new Promise(resolve => setTimeout(resolve, ms));
+     }
+   };
+   ```
+
+**Files to Create/Enhance:**
+- `utils/error-handler.js` - Error handling
+- `utils/api.js` - API wrapper with retry
+
+---
+
+#### **Days 8-9: Action History + Undo System**
+**Goal**: Users can view past actions and undo within 30 seconds
+
+**Frontend Tasks:**
+1. **History Sidebar** (coordinate with Engineer 1's popup.js)
+   - Design data structure for history display
+   - Provide API for fetching history
+
+2. **Undo Button UI** (coordinate with Engineer 1's popup.js)
+   - Provide undo API endpoint
+   - Handle undo logic
+
+**Backend Tasks:**
+3. **Action History** (`utils/storage.js`)
+   ```javascript
+   class ActionHistory {
+     static async add(action) {
+       const history = await Storage.get('action_history') || [];
+       history.unshift({
+         id: crypto.randomUUID(),
+         ...action,
+         timestamp: Date.now(),
+         can_undo: Date.now() < action.created_at + 30000
+       });
+       
+       // Keep last 50 actions
+       const trimmed = history.slice(0, 50);
+       await Storage.set('action_history', trimmed);
+     }
+     
+     static async getAll() {
+       return await Storage.get('action_history') || [];
+     }
+     
+     static async clear() {
+       await Storage.remove('action_history');
+     }
+   }
+   ```
+
+4. **Undo System** (`utils/api.js`)
+   ```javascript
+   // Add to API object
+   async undo(actionId) {
+     // Call backend: POST /actions/{id}/undo
+     const result = await this.request(`/actions/${actionId}/undo`, {
+       method: 'POST'
+     });
+     
+     // Remove from history or mark as undone
+     await ActionHistory.markUndone(actionId);
+     
+     return result;
+   }
+   ```
+
+**Files to Modify:**
+- `utils/storage.js` - Add ActionHistory class
+- `utils/api.js` - Add undo method
+
+---
+
+#### **Day 10: Performance + Security**
+**Goal**: Optimize performance and secure the extension
+
+**Backend Tasks:**
+1. **Performance Monitor** (`utils/performance.js`)
+   ```javascript
+   class PerformanceMonitor {
+     static timers = new Map();
+     
+     static startTimer(label) {
+       this.timers.set(label, performance.now());
+     }
+     
+     static endTimer(label) {
+       const start = this.timers.get(label);
+       const duration = performance.now() - start;
+       console.log(`[Performance] ${label}: ${duration.toFixed(2)}ms`);
+       this.timers.delete(label);
+     }
+     
+     static async measureAsync(label, fn) {
+       this.startTimer(label);
+       const result = await fn();
+       this.endTimer(label);
+       return result;
+     }
+   }
+   
+   class CacheManager {
+     static cache = new Map();
+     
+     static set(key, value, ttlMs = 60000) {
+       this.cache.set(key, {
+         value,
+         expires: Date.now() + ttlMs
+       });
+     }
+     
+     static get(key) {
+       const cached = this.cache.get(key);
+       
+       if (!cached) return null;
+       
+       if (Date.now() > cached.expires) {
+         this.cache.delete(key);
+         return null;
+       }
+       
+       return cached.value;
+     }
+     
+     static clear() {
+       this.cache.clear();
+     }
+   }
+   ```
+
+2. **Security Manager** (`utils/security.js`)
+   ```javascript
+   class SecurityManager {
+     static sanitize(input) {
+       // Remove XSS vectors
+       return input
+         .replace(/</g, '&lt;')
+         .replace(/>/g, '&gt;')
+         .replace(/"/g, '&quot;')
+         .replace(/'/g, '&#x27;');
+     }
+     
+     static validateToken(token) {
+       // JWT format validation
+       return /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(token);
+     }
+     
+     static isTokenExpired(token) {
+       try {
+         const payload = JSON.parse(atob(token.split('.')[1]));
+         return payload.exp * 1000 < Date.now();
+       } catch {
+         return true;
+       }
+     }
+     
+     static rateLimiter = {
+       requests: new Map(),
+       
+       canMakeRequest(key, maxCalls = 10, windowMs = 60000) {
+         const now = Date.now();
+         const requests = this.requests.get(key) || [];
+         
+         // Remove old requests
+         const recent = requests.filter(t => now - t < windowMs);
+         
+         if (recent.length >= maxCalls) {
+           return false;
+         }
+         
+         recent.push(now);
+         this.requests.set(key, recent);
+         return true;
+       }
+     };
+   }
+   ```
+
+**Files to Create:**
+- `utils/performance.js` - Performance monitoring
+- `utils/security.js` - Security utilities
+
+---
+
+## **🔌 INTEGRATION WITH ENGINEER 1**
+
+### **What Engineer 1 Calls from Your Code:**
+
+1. **NLP Parsing**
+   ```javascript
+   // Engineer 1 uses this in popup.js
+   import NLPService from '../utils/nlp.js';
+   
+   const nlp = new NLPService();
+   const intent = await nlp.parse(voiceTranscript);
+   // Engineer 1 displays intent to user
+   ```
+
+2. **Guardian Validation**
+   ```javascript
+   // Engineer 1 uses this in popup.js
+   import Guardian from '../utils/guardian.js';
+   
+   const guardian = new Guardian();
+   const validation = await guardian.validate(intent);
+   // Engineer 1 shows validation.mode, validation.warnings
+   ```
+
+3. **Settings**
+   ```javascript
+   // Engineer 1 reads settings
+   import Storage from '../utils/storage.js';
+   
+   const settings = await Storage.get('settings');
+   const guardianMode = settings.guardian_mode;  // auto/confirm/cautious
+   ```
+
+---
+
+## **✅ YOUR SUCCESS CRITERIA**
+
+### **Week 1:**
+- [ ] NLP parsing extracts all entities correctly
+- [ ] Guardian validation works (all 7 layers)
+- [ ] Settings page is functional
+- [ ] Storage syncs across devices
+- [ ] API wrapper handles errors gracefully
+
+### **Week 2:**
+- [ ] Error handling covers all cases
+- [ ] Action history displays correctly
+- [ ] Undo system works (30-second window)
+- [ ] Performance is optimized
+- [ ] Security measures in place
+
+### **Launch Ready:**
+- [ ] All backend logic is tested
+- [ ] Zero critical bugs
+- [ ] API calls are reliable
+- [ ] Settings persist correctly
+
+---
+
+## **💡 TIPS FOR SUCCESS**
+
+1. **Test Independently**: Create test HTML files
+2. **Mock Responses**: Build demo mode early
+3. **Log Everything**: Use console.log liberally
+4. **Handle Errors**: Always return user-friendly messages
+5. **Cache Aggressively**: Minimize API calls
+6. **Validate Inputs**: Never trust user data
+7. **Document APIs**: Write clear JSDoc comments
+
+---
+
+## **🚀 QUICK START**
+
+**Day 1 Morning:**
+1. Read this README
+2. Review PROJECT_OVERVIEW.md
+3. Start with `utils/nlp.js`
+4. Test intent parsing independently
+
+**Remember**: You're building the intelligence that makes voice commands work reliably!
+
+---
+
+## **📚 KEY FILES YOU'LL WORK WITH**
+
+**Your Main Files:**
+- `utils/nlp.js` - 20% of your time
+- `utils/guardian.js` - 25% of your time
+- `options/options.js` - 15% of your time
+- `utils/api.js` - 15% of your time
+- `utils/error-handler.js` - 10% of your time
+- `utils/storage.js` - 10% of your time
+- Other utils - 5% of your time
