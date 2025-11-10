@@ -39,6 +39,7 @@ venv.bak/
 *.db
 *.sqlite
 *.sqlite3
+voice_guardian.db
 
 # Node.js
 node_modules/
@@ -129,4 +130,7 @@ dist
 tmp/
 temp/
 
-
+# Chrome Extension
+*.crx
+*.pem
+*.zip
