@@ -49,9 +49,9 @@ function initializeElements() {
   elements.mainScreen = document.getElementById('main-screen');
   elements.googleSignin = document.getElementById('google-signin');
   elements.voiceButton = document.getElementById('voice-button');
+  elements.statusIndicator = document.getElementById('status-indicator');
   elements.promptText = document.getElementById('prompt-text');
   elements.promptHint = document.getElementById('prompt-hint');
-  elements.waveform = document.getElementById('waveform');
   elements.transcriptCard = document.getElementById('transcript-card');
   elements.transcriptText = document.getElementById('transcript-text');
   elements.processButton = document.getElementById('process-button');
@@ -87,6 +87,14 @@ function setupEventListeners() {
   // Voice button
   if (elements.voiceButton) {
     elements.voiceButton.addEventListener('click', handleVoiceButtonClick);
+    
+    // Keyboard support for accessibility
+    elements.voiceButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleVoiceButtonClick();
+      }
+    });
   }
   
   // Process button
@@ -374,10 +382,22 @@ function startListening() {
   
   recognition.onstart = () => {
     state.isListening = true;
+    state.isProcessing = false;
+    
+    // Update button state
     elements.voiceButton.classList.add('listening');
+    elements.voiceButton.classList.remove('processing');
+    elements.voiceButton.setAttribute('aria-pressed', 'true');
+    elements.voiceButton.setAttribute('aria-label', 'Stop voice command');
+    
+    // Update status indicator
+    if (elements.statusIndicator) {
+      elements.statusIndicator.textContent = 'Listening';
+    }
+    
+    // Update prompt
     elements.promptText.textContent = 'Listening...';
     elements.promptHint.textContent = 'Speak now';
-    elements.waveform.style.display = 'flex';
     
     // Hide previous cards
     elements.transcriptCard.style.display = 'none';
@@ -425,10 +445,20 @@ function startListening() {
  */
 function stopListening() {
   state.isListening = false;
-  elements.voiceButton.classList.remove('listening');
+  
+  // Update button state
+  elements.voiceButton.classList.remove('listening', 'processing');
+  elements.voiceButton.setAttribute('aria-pressed', 'false');
+  elements.voiceButton.setAttribute('aria-label', 'Start voice command');
+  
+  // Update status indicator
+  if (elements.statusIndicator) {
+    elements.statusIndicator.textContent = '';
+  }
+  
+  // Update prompt
   elements.promptText.textContent = 'Press to speak';
   elements.promptHint.innerHTML = 'or press <kbd>Ctrl+Shift+V</kbd>';
-  elements.waveform.style.display = 'none';
 }
 
 /**
@@ -449,6 +479,19 @@ async function handleProcessCommand() {
   if (!state.transcript || state.isProcessing) return;
   
   state.isProcessing = true;
+  state.isListening = false;
+  
+  // Update voice button to processing state
+  elements.voiceButton.classList.remove('listening');
+  elements.voiceButton.classList.add('processing');
+  elements.voiceButton.setAttribute('aria-label', 'Processing command');
+  
+  // Update status indicator
+  if (elements.statusIndicator) {
+    elements.statusIndicator.textContent = 'Processing';
+  }
+  
+  
   elements.processButton.disabled = true;
   elements.processButton.innerHTML = `
     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="spinner">
@@ -500,6 +543,13 @@ async function handleProcessCommand() {
     showToast('error', 'Processing failed', error.message);
   } finally {
     state.isProcessing = false;
+    
+    // Reset voice button state
+    elements.voiceButton.classList.remove('processing');
+    if (elements.statusIndicator) {
+      elements.statusIndicator.textContent = '';
+    }
+    
     elements.processButton.disabled = false;
     elements.processButton.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">

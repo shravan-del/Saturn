@@ -107,26 +107,27 @@
       </div>
 
       <!-- Voice Button -->
-      <button id="voice-button" class="voice-button">
+      <button 
+        id="voice-button" 
+        class="voice-button" 
+        aria-label="Start voice command"
+        aria-pressed="false"
+        role="button"
+        tabindex="0">
         <div class="voice-button-inner">
-          <svg id="mic-icon" width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
-            <path d="M16 2a6 6 0 016 6v8a6 6 0 11-12 0V8a6 6 0 016-6z"/>
-            <path d="M8 16a8 8 0 0016 0M16 24v6M12 30h8"/>
+          <svg id="waveform-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect x="6" y="12" width="3" height="8" rx="1.5" fill="white"/>
+            <rect x="12" y="8" width="3" height="16" rx="1.5" fill="white"/>
+            <rect x="18" y="4" width="3" height="24" rx="1.5" fill="white"/>
+            <rect x="24" y="8" width="3" height="16" rx="1.5" fill="white"/>
           </svg>
           <div class="voice-ripple"></div>
           <div class="voice-ripple"></div>
           <div class="voice-ripple"></div>
         </div>
+        <div class="voice-status-indicator" id="status-indicator" aria-live="polite" aria-atomic="true"></div>
       </button>
 
-      <!-- Waveform Visualization -->
-      <div id="waveform" class="waveform" style="display: none;">
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-        <div class="wave-bar"></div>
-      </div>
     </div>
 
     <!-- Transcript Display -->
