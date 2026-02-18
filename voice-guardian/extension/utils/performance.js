@@ -1,115 +1,61 @@
-/**
- * Voice Guardian - Performance Monitoring & Optimization
- * Caching and performance tracking
- * 
- * TODO: Implement performance monitoring
- * - Performance timing
- * - Cache management
- * - Performance metrics
- */
+const PerformanceMonitor = {
+  startTimer(label) {
+    if (typeof performance !== 'undefined' && performance.mark) performance.mark(label + '-start');
+  },
 
-class PerformanceMonitor {
-  /**
-   * Start performance timer
-   * @param {string} label - Timer label
-   */
-  static startTimer(label) {
-    if (typeof performance !== 'undefined' && performance.mark) {
-      performance.mark(`${label}-start`);
+  endTimer(label) {
+    if (typeof performance === 'undefined' || !performance.measure) return 0;
+    try {
+      performance.mark(label + '-end');
+      performance.measure(label, label + '-start', label + '-end');
+      const entries = performance.getEntriesByName(label);
+      return entries.length ? entries[0].duration : 0;
+    } catch (e) {
+      return 0;
     }
-  }
+  },
 
-  /**
-   * End performance timer and log result
-   * @param {string} label - Timer label
-   * @returns {number} Duration in milliseconds
-   */
-  static endTimer(label) {
-    if (typeof performance !== 'undefined' && performance.mark) {
-      performance.mark(`${label}-end`);
-      performance.measure(label, `${label}-start`, `${label}-end`);
-      
-      const measure = performance.getEntriesByName(label)[0];
-      if (measure) {
-        console.log(`⏱️ ${label}: ${measure.duration.toFixed(2)}ms`);
-        return measure.duration;
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * Measure async function performance
-   * @param {string} label - Timer label
-   * @param {Function} fn - Async function to measure
-   * @returns {*} Function result
-   */
-  static async measureAsync(label, fn) {
+  async measureAsync(label, fn) {
     this.startTimer(label);
     try {
-      const result = await fn();
+      const out = await fn();
       this.endTimer(label);
-      return result;
-    } catch (error) {
+      return out;
+    } catch (e) {
       this.endTimer(label);
-      throw error;
+      throw e;
     }
   }
-}
+};
 
-/**
- * Cache Manager
- * Simple in-memory cache with TTL
- */
 class CacheManager {
-  constructor() {
+  constructor(ttlMs) {
     this.cache = new Map();
+    this.ttl = ttlMs != null ? ttlMs : 60000;
   }
 
-  /**
-   * Set cache value with TTL
-   * @param {string} key - Cache key
-   * @param {*} value - Cache value
-   * @param {number} ttlMs - Time to live in milliseconds
-   */
-  set(key, value, ttlMs = 60000) {
-    this.cache.set(key, {
-      value,
-      expires: Date.now() + ttlMs
-    });
+  set(key, value, ttlMs) {
+    const ttl = ttlMs != null ? ttlMs : this.ttl;
+    this.cache.set(key, { value, expires: Date.now() + ttl });
   }
 
-  /**
-   * Get cache value
-   * @param {string} key - Cache key
-   * @returns {*} Cached value or null
-   */
   get(key) {
     const item = this.cache.get(key);
     if (!item) return null;
-    
     if (Date.now() > item.expires) {
       this.cache.delete(key);
       return null;
     }
-    
     return item.value;
   }
 
-  /**
-   * Clear cache
-   */
   clear() {
     this.cache.clear();
   }
 }
 
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { PerformanceMonitor, CacheManager };
-} else {
-  // For ES6 modules
+if (typeof window !== 'undefined') {
   window.PerformanceMonitor = PerformanceMonitor;
   window.CacheManager = CacheManager;
 }
-
+if (typeof module !== 'undefined' && module.exports) module.exports = { PerformanceMonitor, CacheManager };

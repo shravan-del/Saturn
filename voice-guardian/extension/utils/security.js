@@ -1,97 +1,43 @@
-/**
- * Voice Guardian - Security Utilities
- * Input validation, sanitization, token management
- * 
- * TODO: Implement security features
- * - Input sanitization
- * - Token validation
- * - Rate limiting
- */
-
-class SecurityManager {
-  /**
-   * Sanitize user input to prevent XSS
-   * @param {string} input - User input
-   * @returns {string} Sanitized input
-   */
-  static sanitize(input) {
+const SecurityManager = {
+  sanitize(input) {
     if (typeof input !== 'string') return input;
-    
-    // Remove potential XSS vectors
     return input
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#x27;')
       .replace(/\//g, '&#x2F;');
-  }
+  },
 
-  /**
-   * Validate token format
-   * @param {string} token - JWT token
-   * @returns {boolean} Is valid token
-   */
-  static isValidToken(token) {
+  isValidToken(token) {
     if (!token || typeof token !== 'string') return false;
-    
-    // JWT format check (rough)
-    const parts = token.split('.');
-    return parts.length === 3;
-  }
+    return token.split('.').length === 3;
+  },
 
-  /**
-   * Check if token is expired
-   * @param {string} token - JWT token
-   * @returns {boolean} Is expired
-   */
-  static isTokenExpired(token) {
+  isTokenExpired(token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      const exp = payload.exp * 1000; // Convert to ms
-      return Date.now() >= exp;
+      return Date.now() >= (payload.exp * 1000);
     } catch (e) {
-      return true; // If can't parse, consider expired
+      return true;
+    }
+  },
+
+  rateLimiter: {
+    calls: new Map(),
+    canMakeRequest(key, maxCalls, windowMs) {
+      const now = Date.now();
+      const limit = maxCalls != null ? maxCalls : 30;
+      const window = windowMs != null ? windowMs : 60000;
+      let list = this.calls.get(key) || [];
+      list = list.filter(t => now - t < window);
+      if (list.length >= limit) return false;
+      list.push(now);
+      this.calls.set(key, list);
+      return true;
     }
   }
+};
 
-  /**
-   * Rate limiter for API calls
-   */
-  static rateLimiter = {
-    calls: new Map(),
-    
-    /**
-     * Check if request can be made
-     * @param {string} key - Rate limit key (e.g., user ID)
-     * @param {number} maxCalls - Max calls allowed
-     * @param {number} windowMs - Time window in milliseconds
-     * @returns {boolean} Can make request
-     */
-    canMakeRequest(key, maxCalls = 10, windowMs = 60000) {
-      const now = Date.now();
-      const userCalls = this.calls.get(key) || [];
-      
-      // Remove old calls outside window
-      const recentCalls = userCalls.filter(time => now - time < windowMs);
-      
-      if (recentCalls.length >= maxCalls) {
-        return false; // Rate limited
-      }
-      
-      // Add this call
-      recentCalls.push(now);
-      this.calls.set(key, recentCalls);
-      
-      return true; // Allowed
-    }
-  };
-}
-
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = SecurityManager;
-} else {
-  // For ES6 modules
-  window.SecurityManager = SecurityManager;
-}
-
+if (typeof window !== 'undefined') window.SecurityManager = SecurityManager;
+if (typeof module !== 'undefined' && module.exports) module.exports = SecurityManager;

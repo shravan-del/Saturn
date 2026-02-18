@@ -1,163 +1,123 @@
-/**
- * Options Page Script
- */
+const SettingsManager = {
+  keys: {
+    autoStart: 'auto_start_listening',
+    confirmMode: 'confirmation_mode',
+    saveHistory: 'save_history'
+  },
 
-// Load settings on page load
+  async loadSettings() {
+    const storage = typeof Storage !== 'undefined' ? Storage : await getStorageFallback();
+    const autoStart = await storage.get(this.keys.autoStart);
+    const confirmMode = await storage.get(this.keys.confirmMode);
+    const saveHistory = await storage.get(this.keys.saveHistory);
+
+    const autoEl = document.getElementById('auto-start');
+    const modeEl = document.getElementById('confirmation-mode');
+    const historyEl = document.getElementById('save-history');
+    if (autoEl) autoEl.checked = !!autoStart;
+    if (modeEl) modeEl.value = confirmMode || 'smart';
+    if (historyEl) historyEl.checked = saveHistory !== false;
+  },
+
+  async saveSettings(data) {
+    const storage = typeof Storage !== 'undefined' ? Storage : await getStorageFallback();
+    if (data.autoStart != null) await storage.set(this.keys.autoStart, data.autoStart);
+    if (data.confirmMode != null) await storage.set(this.keys.confirmMode, data.confirmMode);
+    if (data.saveHistory != null) await storage.set(this.keys.saveHistory, data.saveHistory);
+  }
+};
+
+async function getStorageFallback() {
+  if (typeof Storage !== 'undefined' && Storage.get) return Storage;
+  const C = typeof Constants !== 'undefined' ? Constants : {};
+  return {
+    get: async (k) => {
+      try {
+        if (chrome.storage && chrome.storage.local) return (await chrome.storage.local.get(k))[k];
+      } catch (e) {}
+      try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return localStorage.getItem(k); }
+    },
+    set: async (k, v) => {
+      try {
+        if (chrome.storage && chrome.storage.local) return chrome.storage.local.set({ [k]: v });
+      } catch (e) {}
+      localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+    }
+  };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('Options page loaded');
-  
   await loadUserInfo();
-  await loadSettings();
+  await SettingsManager.loadSettings();
   setupEventListeners();
 });
 
-/**
- * Load user information
- */
 async function loadUserInfo() {
   const user = await Auth.getUser();
-  
-  if (user) {
-    document.getElementById('user-name').textContent = user.name || 'User';
-    document.getElementById('user-email').textContent = user.email || '';
-    
-    if (user.picture) {
-      document.getElementById('user-avatar').src = user.picture;
-    }
-  }
+  const nameEl = document.getElementById('user-name');
+  const emailEl = document.getElementById('user-email');
+  const avatarEl = document.getElementById('user-avatar');
+  if (nameEl) nameEl.textContent = (user && user.name) ? user.name : 'User';
+  if (emailEl) emailEl.textContent = (user && user.email) ? user.email : '';
+  if (avatarEl && user && user.picture) avatarEl.src = user.picture;
 }
 
-/**
- * Load saved settings
- */
-async function loadSettings() {
-  // Load auto-start setting
-  const autoStart = await Storage.get('auto_start_listening');
-  document.getElementById('auto-start').checked = autoStart || false;
-  
-  // Load confirmation mode
-  const confirmMode = await Storage.get('confirmation_mode');
-  document.getElementById('confirmation-mode').value = confirmMode || 'smart';
-  
-  // Load save history setting
-  const saveHistory = await Storage.get('save_history');
-  document.getElementById('save-history').checked = saveHistory !== false;
-}
-
-/**
- * Setup event listeners
- */
 function setupEventListeners() {
-  // Auto-start checkbox
-  document.getElementById('auto-start').addEventListener('change', async (e) => {
-    await Storage.set('auto_start_listening', e.target.checked);
-    showNotification('Setting saved');
-  });
-  
-  // Confirmation mode
-  document.getElementById('confirmation-mode').addEventListener('change', async (e) => {
-    await Storage.set('confirmation_mode', e.target.value);
-    showNotification('Setting saved');
-  });
-  
-  // Save history checkbox
-  document.getElementById('save-history').addEventListener('change', async (e) => {
-    await Storage.set('save_history', e.target.checked);
-    showNotification('Setting saved');
-  });
-  
-  // Logout button
-  document.getElementById('logout-btn').addEventListener('click', async () => {
-    if (confirm('Are you sure you want to logout?')) {
-      await Auth.logout();
-      showNotification('Logged out successfully');
-      setTimeout(() => {
-        window.close();
-      }, 1000);
-    }
-  });
-  
-  // Clear data button
-  document.getElementById('clear-data-btn').addEventListener('click', async () => {
-    if (confirm('This will delete ALL your data. Are you sure?')) {
-      await Storage.clear();
-      await Auth.logout();
-      showNotification('All data cleared');
-      setTimeout(() => {
-        window.close();
-      }, 1000);
-    }
-  });
-  
-  // Support link
-  document.getElementById('support-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    chrome.tabs.create({ url: 'http://localhost:5173/support' });
-  });
-  
-  // Privacy link
-  document.getElementById('privacy-link').addEventListener('click', (e) => {
-    e.preventDefault();
-    chrome.tabs.create({ url: 'http://localhost:5173/privacy' });
-  });
+  const autoEl = document.getElementById('auto-start');
+  const modeEl = document.getElementById('confirmation-mode');
+  const historyEl = document.getElementById('save-history');
+  if (autoEl) {
+    autoEl.addEventListener('change', async (e) => {
+      await SettingsManager.saveSettings({ autoStart: e.target.checked });
+      showNotification('Setting saved');
+    });
+  }
+  if (modeEl) {
+    modeEl.addEventListener('change', async (e) => {
+      await SettingsManager.saveSettings({ confirmMode: e.target.value });
+      showNotification('Setting saved');
+    });
+  }
+  if (historyEl) {
+    historyEl.addEventListener('change', async (e) => {
+      await SettingsManager.saveSettings({ saveHistory: e.target.checked });
+      showNotification('Setting saved');
+    });
+  }
+
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      if (confirm('Log out?')) {
+        await Auth.logout();
+        showNotification('Logged out');
+        setTimeout(() => window.close(), 1000);
+      }
+    });
+  }
+
+  const clearBtn = document.getElementById('clear-data-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+      if (confirm('Clear all data? This cannot be undone.')) {
+        if (typeof Storage !== 'undefined' && Storage.clear) await Storage.clear();
+        await Auth.logout();
+        showNotification('Data cleared');
+        setTimeout(() => window.close(), 1000);
+      }
+    });
+  }
+
+  const supportLink = document.getElementById('support-link');
+  if (supportLink) supportLink.addEventListener('click', (e) => { e.preventDefault(); chrome.tabs.create({ url: 'http://localhost:5173/support' }); });
+  const privacyLink = document.getElementById('privacy-link');
+  if (privacyLink) privacyLink.addEventListener('click', (e) => { e.preventDefault(); chrome.tabs.create({ url: 'http://localhost:5173/privacy' }); });
 }
 
-/**
- * Show notification
- */
 function showNotification(message) {
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #10b981;
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    animation: slideIn 0.3s ease-out;
-  `;
-  notification.textContent = message;
-  
-  document.body.appendChild(notification);
-  
-  // Remove after 3 seconds
-  setTimeout(() => {
-    notification.style.animation = 'slideOut 0.3s ease-out';
-    setTimeout(() => {
-      notification.remove();
-    }, 300);
-  }, 3000);
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;top:20px;right:20px;background:#10b981;color:#fff;padding:1rem 1.5rem;border-radius:8px;z-index:1000;';
+  el.textContent = message;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
 }
-
-// Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideOut {
-    from {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-  }
-`;
-document.head.appendChild(style);
-
-

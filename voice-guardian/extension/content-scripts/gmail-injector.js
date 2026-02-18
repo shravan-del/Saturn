@@ -1,63 +1,36 @@
-/**
- * Gmail Injector
- * Injects voice command button into Gmail
- */
-
 (function() {
-  console.log('Gmail injector loaded');
+  'use strict';
 
-  // Wait for Gmail to load
-  function waitForGmailLoad() {
-    const checkInterval = setInterval(() => {
+  function waitForToolbar(cb, maxWait) {
+    const deadline = Date.now() + (maxWait || 15000);
+    function check() {
       const toolbar = document.querySelector('[role="toolbar"]');
       if (toolbar) {
-        clearInterval(checkInterval);
-        injectVoiceButton();
+        cb(toolbar);
+        return;
       }
-    }, 1000);
-
-    // Give up after 30 seconds
-    setTimeout(() => clearInterval(checkInterval), 30000);
+      if (Date.now() < deadline) setTimeout(check, 500);
+    }
+    check();
   }
 
-  /**
-   * Inject voice button into Gmail toolbar
-   */
-  function injectVoiceButton() {
-    // Check if already injected
-    if (document.getElementById('voice-guardian-btn')) {
-      return;
-    }
-
-    const toolbar = document.querySelector('[role="toolbar"]');
-    if (!toolbar) {
-      console.log('Gmail toolbar not found');
-      return;
-    }
-
-    // Create voice button
-    const button = document.createElement('button');
-    button.id = 'voice-guardian-btn';
-    button.className = 'voice-guardian-inject-btn';
-    button.innerHTML = '🎙️';
-    button.title = 'Voice Guardian (Ctrl+Shift+V)';
-    
-    button.addEventListener('click', () => {
+  function injectButton(toolbar) {
+    if (document.getElementById('voice-guardian-gmail-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'voice-guardian-gmail-btn';
+    btn.type = 'button';
+    btn.title = 'Voice Guardian (Ctrl+Shift+V)';
+    btn.textContent = 'Voice';
+    btn.style.cssText = 'margin-right:8px;padding:6px 10px;cursor:pointer;';
+    btn.addEventListener('click', function() {
       chrome.runtime.sendMessage({ action: 'activate-voice' });
     });
-
-    // Insert at beginning of toolbar
-    toolbar.insertBefore(button, toolbar.firstChild);
-    
-    console.log('Voice button injected into Gmail');
+    toolbar.insertBefore(btn, toolbar.firstChild);
   }
 
-  // Start injection
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', waitForGmailLoad);
+    document.addEventListener('DOMContentLoaded', function() { waitForToolbar(injectButton); });
   } else {
-    waitForGmailLoad();
+    waitForToolbar(injectButton);
   }
 })();
-
-

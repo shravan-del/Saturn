@@ -1,135 +1,95 @@
-# 🎤 Voice Guardian
+# Voice Guardian
 
-**Enterprise AI Voice Assistant for Autonomous Work Execution**
+Enterprise AI voice assistant for creating Google Calendar events from natural voice commands. Includes a Chrome extension, FastAPI backend, standalone web app, and optional React frontend.
 
-Voice Guardian is a Chrome extension that enables users to create Google Calendar events using natural voice commands. Built with FastAPI backend and modern web technologies.
+## Prerequisites
 
----
-
-## **🚀 Quick Start**
-
-### **Prerequisites**
 - Python 3.11+
-- Node.js 18+ (for frontend)
+- Node.js 18+ (for React frontend if used)
 - Chrome browser
-- Google OAuth credentials
+- Google OAuth credentials for calendar and auth
 
-### **Backend Setup**
+## Quick Start
+
+### Backend
+
 ```bash
-cd backend
+cd voice-guardian/backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 cp env.example .env
-# Edit .env with your API keys
+# Set API keys in .env
 uvicorn app.main:app --reload --port 8000
 ```
 
-### **Extension Setup**
-1. Open Chrome: `chrome://extensions/`
-2. Enable Developer Mode
-3. Click "Load unpacked"
-4. Select `extension/` folder
-5. Extension is ready!
+### Chrome Extension
 
-### **Test It**
-1. Click extension icon
-2. Sign in with Google
-3. Say: "Schedule meeting tomorrow at 2pm"
-4. Confirm action
-5. Event created in Google Calendar!
+1. Open Chrome and go to chrome://extensions/
+2. Turn on Developer mode
+3. Click Load unpacked and choose the voice-guardian/extension folder
+4. Right-click the extension icon and choose Options to open settings
 
----
+### Web App (standalone, no extension)
 
-## **📁 Project Structure**
+1. Start the backend (see above)
+2. From voice-guardian/web-app run: python3 server.py
+3. Open http://localhost:3000
 
-```
-voice-guardian/
-├── extension/          # Chrome Extension
-│   ├── popup/         # UI (Engineer 1)
-│   ├── utils/         # Backend Logic (Engineer 2)
-│   ├── config/        # Configuration (Engineer 2)
-│   └── background/    # Service Worker (Engineer 2)
-│
-├── backend/           # FastAPI Backend
-│   └── app/
-│       ├── routes/    # API Routes
-│       └── services/  # Business Logic
-│
-└── docs/              # Documentation
-```
+### React Frontend (optional)
 
----
+1. Start the backend on port 8000
+2. cd voice-guardian/frontend && npm install && npm run dev
+3. Open http://localhost:5173
 
-## **👥 For Engineers**
+## Project Structure
 
-### **Engineer 1 (Frontend/UI)**
-- Owns: `extension/popup/`, `extension/options/`
-- Focus: UI, styling, user interactions
-- See: `ENGINEER_GUIDE.md`
+- extension/ – Chrome extension (Manifest V3). popup/ is the main UI; utils/ holds NLP, Guardian, API, storage, auth, error handling; config/ holds constants and API endpoints; background/ is the service worker; options/ is the settings page.
+- backend/ – FastAPI app. Routes: /voice/command (parse voice), /actions/execute (run action), /auth (Google OAuth). Services: intent parsing, Guardian checks, Google Calendar.
+- web-app/ – Standalone HTML/CSS/JS app that talks to the same backend.
+- frontend/ – React + Vite + TypeScript app (optional dashboard).
 
-### **Engineer 2 (Backend/Logic)**
-- Owns: `extension/utils/`, `extension/config/`, `extension/background/`
-- Focus: API integration, validation, error handling
-- See: `YOUR_TASKS.md` and `ENGINEER_GUIDE.md`
+## Flow
 
----
+1. User speaks (e.g. "Schedule meeting tomorrow at 2pm") in the extension or web app.
+2. Client sends the transcript to POST /voice/command.
+3. Backend parses intent (OpenAI), runs Guardian validation, and creates a pending action.
+4. Client shows a preview; user confirms.
+5. Client calls POST /actions/execute with the action id; backend creates the calendar event (or other action).
+6. Client can show a link to the event and optional undo within a short window.
 
-## **📚 Documentation**
+## Extension Modules (Engineer 2)
 
-- **`PROJECT_OVERVIEW.md`** - Full project explanation
-- **`ENGINEER_GUIDE.md`** - Engineer ownership & workflow
-- **`YOUR_TASKS.md`** - Engineer 2's task breakdown
-- **`GOOGLE_OAUTH_SETUP.md`** - OAuth setup guide
-- **`EXTENSION_SETUP.md`** - Extension setup details
+- config/constants.js – Timeouts, retries, Guardian thresholds, storage keys.
+- config/api-config.js – Base URL and endpoint paths.
+- utils/storage.js – StorageManager (Chrome storage with localStorage fallback), ActionHistory (last N actions, undo window).
+- utils/nlp.js – NLPService.parse() calls backend /voice/command; fallback uses EntityExtractor and normalizeDateTime for title, when, duration, location.
+- utils/guardian.js – Guardian.validate() runs 7 layers: sanity checks, conflict detection, pattern analysis, risk scoring, mode decision, warning generation, recommendation/preview.
+- utils/api.js – request() with retry, timeout, auth header; undo(actionId) for POST actions/{id}/undo.
+- utils/error-handler.js – categorize errors, getUserMessage(), canRetry().
+- utils/auth.js – getToken(), getUser(), setSession(), logout() using Chrome storage or fallback.
+- utils/security.js – sanitize input, token validation, rate limiter.
+- utils/performance.js – PerformanceMonitor (timers, measureAsync), CacheManager (TTL cache).
+- utils/demo-mode.js – mock calendar, auth, and intent for testing without backend.
+- options/ – Settings page: account, voice settings, confirmation mode, clear data. Uses Storage and Auth.
+- background/service-worker.js – install log, keyboard command, message handling, error logging.
+- content-scripts/gmail-injector.js – Injects a Voice button on Gmail; sends activate-voice to extension.
 
----
+## API Summary
 
-## **🛠️ Tech Stack**
+- POST /voice/command – Body: { command: string }. Returns action_id, intent, guardian (mode, risk_score, warnings, preview).
+- POST /actions/execute – Body: { action_id, confirm }. Executes the action (e.g. create calendar event).
+- GET /actions/ – Returns list of user actions.
+- POST /actions/{id}/undo – Undo an action within the allowed window (if implemented on backend).
 
-### **Frontend**
-- Chrome Extension (Manifest V3)
-- Web Speech API
-- Vanilla JavaScript
+## Documentation
 
-### **Backend**
-- FastAPI
-- SQLite (development)
-- OpenAI GPT-4o-mini
-- Google Calendar API
+- PROJECT_OVERVIEW.md – Architecture and data flow
+- ENGINEER_1_NEW_GUIDE.md – Voice UI and calendar integration tasks
+- ENGINEER_2_NEW_GUIDE.md – NLP, Guardian, settings, API, storage tickets
+- GOOGLE_OAUTH_SETUP.md – OAuth setup
+- EXTENSION_SETUP.md – Extension load and test
 
----
+## License
 
-## **✨ Features**
-
-- ✅ Voice recognition (Web Speech API)
-- ✅ Intent parsing (OpenAI GPT-4o-mini)
-- ✅ Guardian validation (safety checks)
-- ✅ Google Calendar integration
-- ✅ Google OAuth authentication
-- ✅ Chrome extension popup UI
-
----
-
-## **🔧 Development**
-
-### **Backend**
-```bash
-cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload
-```
-
-### **Extension**
-- Load in Chrome (`chrome://extensions/`)
-- Changes auto-reload (if using watch mode)
-
----
-
-## **📝 License**
-
-Enterprise License - Contact for details
-
----
-
-**Built with ❤️ by the Voice Guardian team**
+Enterprise license; contact for terms.
