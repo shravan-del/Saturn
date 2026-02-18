@@ -16,7 +16,19 @@
   ],
   "host_permissions": [
     "http://localhost:8000/*",
-    "https://www.googleapis.com/*"
+    "https://www.googleapis.com/*",
+    "https://mail.google.com/*",
+    "https://calendar.google.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["content-scripts/gmail-injector.js"]
+    },
+    {
+      "matches": ["https://calendar.google.com/*"],
+      "js": ["content-scripts/calendar-injector.js"]
+    }
   ],
   "action": {
     "default_popup": "popup/popup.html",

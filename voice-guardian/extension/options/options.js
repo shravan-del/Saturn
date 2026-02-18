@@ -6,7 +6,7 @@ const SettingsManager = {
   },
 
   async loadSettings() {
-    const storage = typeof Storage !== 'undefined' ? Storage : await getStorageFallback();
+    const storage = (typeof Storage !== 'undefined' && typeof Storage.get === 'function') ? Storage : await getStorageFallback();
     const autoStart = await storage.get(this.keys.autoStart);
     const confirmMode = await storage.get(this.keys.confirmMode);
     const saveHistory = await storage.get(this.keys.saveHistory);
@@ -20,7 +20,7 @@ const SettingsManager = {
   },
 
   async saveSettings(data) {
-    const storage = typeof Storage !== 'undefined' ? Storage : await getStorageFallback();
+    const storage = (typeof Storage !== 'undefined' && typeof Storage.get === 'function') ? Storage : await getStorageFallback();
     if (data.autoStart != null) await storage.set(this.keys.autoStart, data.autoStart);
     if (data.confirmMode != null) await storage.set(this.keys.confirmMode, data.confirmMode);
     if (data.saveHistory != null) await storage.set(this.keys.saveHistory, data.saveHistory);
